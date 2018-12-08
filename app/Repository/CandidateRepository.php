@@ -39,7 +39,7 @@ class CandidateRepository
                 $candidates[] = $candidate;
             }
 
-            if ($key +1 >= $offset + $limit) {
+            if ($key + 1 >= $offset + $limit) {
                 break;
             }
         }
@@ -55,7 +55,7 @@ class CandidateRepository
     public function filterByName(string $name): CandidateRepository
     {
         return new static(
-            $this->candidates->filter(function (Candidate $candidate) use ($name) {
+            $this->candidates->filter(function(Candidate $candidate) use ($name) {
                 return $candidate->hasNameContaining($name);
             })
         );

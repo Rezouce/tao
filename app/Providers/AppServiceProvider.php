@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
         /** @var Container $container */
         $container = app();
 
-        $container->singleton(CandidateRepository::class, function () {
+        $container->singleton(CandidateRepository::class, function() {
             return new CandidateRepository(
                 new JsonDataSource(resource_path() . '/testtakers.json', Candidate::class)
             );

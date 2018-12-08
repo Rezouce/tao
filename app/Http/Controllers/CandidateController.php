@@ -12,9 +12,6 @@ class CandidateController extends Controller
             $repository = $repository->filterByName(request('name'));
         }
 
-        return response(
-            $repository->paginate(request('offset', 0), request('limit', 10))
-            , 200
-        );
+        return response($repository->paginate(request('offset', 0), request('limit', 10)), 200);
     }
 }

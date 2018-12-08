@@ -3,14 +3,14 @@
 namespace Tests\Unit\DataSource;
 
 use App\Candidate;
-use App\DataSource\JsonDataSource;
+use App\DataSource\CsvDataSource;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Tests\RefreshCandidates;
 use Tests\TestCase;
 
-class JsonDataSourceTest extends TestCase
+class CsvDataSourceTest extends TestCase
 {
     use RefreshCandidates;
 
@@ -20,10 +20,10 @@ class JsonDataSourceTest extends TestCase
         $candidates = $this->createCandidates(2);
 
         File::shouldReceive('get')
-            ->with('myfile.json')
-            ->andReturn(json_encode($candidates->toArray()));
+            ->with('myfile.csv')
+            ->andReturn($this->generateCsv($candidates));
 
-        $dataSource = new JsonDataSource('myfile.json', Candidate::class);
+        $dataSource = new CsvDataSource('myfile.csv', Candidate::class);
 
         $this->assertCount(2, $dataSource);
         $this->assertCandidates($candidates, $dataSource);
@@ -34,13 +34,34 @@ class JsonDataSourceTest extends TestCase
     {
         $this->expectException(FileNotFoundException::class);
 
-        new JsonDataSource('myfile.json', Candidate::class);
+        new CsvDataSource('myfile.csv', Candidate::class);
     }
 
-    private function assertCandidates(Collection $expected, JsonDataSource $dataSource): void
+    private function assertCandidates(Collection $expected, CsvDataSource $dataSource): void
     {
         foreach ($dataSource as $key => $candidate) {
             $this->assertEquals($expected->get($key), $candidate);
         }
+    }
+
+    function generateCsv(Collection $candidates) {
+        $handle = fopen('php://temp', 'rb+');
+
+        fputcsv($handle, array_keys($candidates->first()->toArray()));
+
+        foreach ($candidates as $candidate) {
+            fputcsv($handle, $candidate->toArray());
+        }
+
+        rewind($handle);
+
+        $csv = '';
+
+        while (!feof($handle)) {
+            $csv .= fread($handle, 8192);
+        }
+
+        fclose($handle);
+        return $csv;
     }
 }

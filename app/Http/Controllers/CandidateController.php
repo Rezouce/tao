@@ -8,6 +8,9 @@ class CandidateController extends Controller
 {
     public function index(CandidateRepositoryInterface $repository)
     {
-        return response($repository->findAll(), 200);
+        return response(
+            $repository->paginate(request('offset', 0), request('limit', 10))
+            , 200
+        );
     }
 }

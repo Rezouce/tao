@@ -24,7 +24,7 @@ class Candidate implements Arrayable
 
     private $address;
 
-    public function __construct(array $data = [])
+    public function __construct(array $data)
     {
         $this->login = $data['login'];
         $this->password = $data['password'];
@@ -40,7 +40,7 @@ class Candidate implements Arrayable
     public function toArray()
     {
         return [
-            'id' => $this->login,
+            'id' => $this->getId(),
             'login' => $this->login,
             'password' => $this->password,
             'title' => $this->title,
@@ -57,5 +57,10 @@ class Candidate implements Arrayable
     {
         return false !== stripos($this->firstname, $searchedString)
             || false !== stripos($this->lastname, $searchedString);
+    }
+
+    public function getId(): string
+    {
+        return $this->login;
     }
 }

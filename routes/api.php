@@ -12,3 +12,4 @@
 */
 
 Route::get('/candidates', 'CandidateController@index');
+Route::get('/candidates/{candidate}', 'CandidateController@show');

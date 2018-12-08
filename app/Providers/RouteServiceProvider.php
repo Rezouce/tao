@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Repository\CandidateRepositoryInterface;
+use App\Repository\ModelNotFoundException;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
@@ -23,9 +25,15 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
-
         parent::boot();
+
+        Route::bind('candidate', function ($value) {
+            try {
+                return app(CandidateRepositoryInterface::class)->get($value);
+            } catch (ModelNotFoundException $exception) {
+                abort(404, $exception->getMessage());
+            }
+        });
     }
 
     /**

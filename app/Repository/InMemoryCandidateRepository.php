@@ -54,4 +54,20 @@ class InMemoryCandidateRepository implements CandidateRepositoryInterface
             })
         );
     }
+
+    /**
+     * @throws ModelNotFoundException
+     */
+    public function get(string $id): Candidate
+    {
+        $candidate = $this->candidates->filter(function (Candidate $candidate) use ($id) {
+            return $candidate->getId() == $id;
+        })->first();
+
+        if ($candidate) {
+            return $candidate;
+        }
+
+        throw new ModelNotFoundException(sprintf("There isn't any candidate with the id %s.", $id));
+    }
 }

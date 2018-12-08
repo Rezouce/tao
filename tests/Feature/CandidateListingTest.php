@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use Tests\RefreshCandidates;
 use Tests\TestCase;
 
-class CandidateTest extends TestCase
+class CandidateListingTest extends TestCase
 {
     use RefreshCandidates;
 

@@ -2,7 +2,9 @@
 
 namespace Tests\Unit;
 
+use App\Candidate;
 use App\Repository\InMemoryCandidateRepository;
+use App\Repository\ModelNotFoundException;
 use Tests\RefreshCandidates;
 use Tests\TestCase;
 
@@ -72,5 +74,27 @@ class InMemoryCandidateRepositoryTest extends TestCase
         );
 
         $this->assertSame($expectedCandidates->toArray(), $repository->filterByName('ronald')->all()->toArray());
+    }
+
+    /** @test */
+    public function it_can_get_a_candidate_by_its_id()
+    {
+        /** @var Candidate $candidate */
+        $candidate = $this->createCandidates();
+
+        $repository = new InMemoryCandidateRepository(collect([$candidate]));
+
+        $this->assertSame($candidate, $repository->get($candidate->getId()));
+    }
+
+    /** @test */
+    public function it_will_fail_when_trying_to_get__with_an_id__not_matching_any_candidate()
+    {
+        $repository = new InMemoryCandidateRepository();
+
+        $this->expectException(ModelNotFoundException::class);
+        $this->expectExceptionMessage("There isn't any candidate with the id test.");
+
+        $repository->get('test');
     }
 }

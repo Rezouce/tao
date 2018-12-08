@@ -19,7 +19,7 @@ trait RefreshCandidates
         });
     }
 
-    public function createCandidates(int $numberOfCandidates)
+    public function createCandidates(int $numberOfCandidates = 1, array $data = [])
     {
         /** @var Generator $faker */
         $faker = app(Generator::class);
@@ -29,7 +29,7 @@ trait RefreshCandidates
         $candidates = collect();
 
         for ($i = 0; $i < $numberOfCandidates; ++$i) {
-            $candidate = new Candidate([
+            $candidate = new Candidate(array_merge([
                 'login' => $faker->userName,
                 'password' => $faker->password,
                 'title' => $faker->title,
@@ -39,7 +39,7 @@ trait RefreshCandidates
                 'email' => $faker->email,
                 'picture' => $faker->imageUrl(),
                 'address' => $faker->address,
-            ]);
+            ], $data));
 
             $candidates->push($candidate);
 

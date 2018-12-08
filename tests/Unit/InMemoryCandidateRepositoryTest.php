@@ -46,7 +46,7 @@ class InMemoryCandidateRepositoryTest extends TestCase
     }
 
     /** @test */
-    public function it_can_return_paginated_users()
+    public function it_can_return_paginated_candidates()
     {
         $candidates = $this->createCandidates(9);
 
@@ -58,5 +58,19 @@ class InMemoryCandidateRepositoryTest extends TestCase
         $this->assertEquals(9, $results->total());
         $this->assertEquals(3, $results->currentPage());
         $this->assertEquals(2, $results->perPage());
+    }
+
+    /** @test */
+    public function it_can_filter_the_candidates_by_their_name()
+    {
+        $expectedCandidates = $this->createCandidates(2, ['firstname' => 'Ronald'])
+            ->merge($this->createCandidates(2, ['lastname' => 'Ronald']));
+
+        $repository = new InMemoryCandidateRepository(
+            $this->createCandidates(10, ['firstname' => 'Something', 'lastname' => 'Else'])
+                ->merge($expectedCandidates)
+        );
+
+        $this->assertSame($expectedCandidates->toArray(), $repository->filterByName('ronald')->all()->toArray());
     }
 }

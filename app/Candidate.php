@@ -52,4 +52,10 @@ class Candidate implements Arrayable
             'address' => $this->address,
         ];
     }
+
+    public function hasNameContaining(string $searchedString): bool
+    {
+        return false !== stripos($this->firstname, $searchedString)
+            || false !== stripos($this->lastname, $searchedString);
+    }
 }

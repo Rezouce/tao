@@ -30,4 +30,17 @@ class CandidateTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson(array_slice($candidates->toArray(), 1, 2));
     }
+
+    /** @test */
+    public function it_can_filter_the_candidates_by_their_name()
+    {
+        $candidatesWithMatchingFirstname = $this->createCandidates(2, ['firstname' => 'Ronald']);
+        $candidatesWithMatchingLastname = $this->createCandidates(2, ['lastname' => 'Ronald']);
+        $this->createCandidates(10, ['firstname' => 'Something', 'lastname' => 'Else']);
+
+        $response = $this->getJson('/candidates?name=ronald');
+
+        $response->assertStatus(200);
+        $response->assertExactJson($candidatesWithMatchingFirstname->merge($candidatesWithMatchingLastname)->toArray());
+    }
 }

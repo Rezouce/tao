@@ -10,4 +10,6 @@ interface CandidateRepositoryInterface
     public function all(): Collection;
 
     public function paginate(int $offset, int $limit): LengthAwarePaginator;
+
+    public function filterByName(string $name): CandidateRepositoryInterface;
 }

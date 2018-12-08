@@ -45,4 +45,13 @@ class InMemoryCandidateRepository implements CandidateRepositoryInterface
             ceil($offset / $limit)
         );
     }
+
+    public function filterByName(string $name): CandidateRepositoryInterface
+    {
+        return new static(
+            $this->candidates->filter(function (Candidate $candidate) use ($name) {
+                return $candidate->hasNameContaining($name);
+            })
+        );
+    }
 }

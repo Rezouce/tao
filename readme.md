@@ -6,6 +6,12 @@ The dependencies are managed through composer and can be installed using the com
 
 To run the tests use the command `vendor/bin/phpunit`.
 
+# Routes
+
+You can find the routes in the [api.php](/routes/api.php) file.
+
+The `[GET]/candidates` endpoint can accept the parameters `offset`, `limit` and `name`.
+
 # Data source
 
 The data source used by the application is defined in the AppServiceProvider boot method.

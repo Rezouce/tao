@@ -3,19 +3,24 @@
 namespace Tests;
 
 use App\Candidate;
-use App\Repository\CandidateRepositoryInterface;
-use App\Repository\InMemoryCandidateRepository;
+use App\DataSource\InMemoryDataSource;
+use App\Repository\CandidateRepository;
 use Faker\Generator;
 use Illuminate\Container\Container;
 
 trait RefreshCandidates
 {
+    /** @var InMemoryDataSource */
+    private $dataSource;
+
     public function refreshCandidates(): void
     {
+        $this->dataSource = new InMemoryDataSource(null, Candidate::class);
+
         /** @var Container $container */
         $container = app();
-        $container->singleton(CandidateRepositoryInterface::class, function () {
-            return new InMemoryCandidateRepository();
+        $container->singleton(CandidateRepository::class, function () {
+            return new CandidateRepository($this->dataSource);
         });
     }
 
@@ -23,8 +28,6 @@ trait RefreshCandidates
     {
         /** @var Generator $faker */
         $faker = app(Generator::class);
-        /** @var InMemoryCandidateRepository $repository */
-        $repository = app(CandidateRepositoryInterface::class);
 
         $candidates = collect();
 
@@ -43,7 +46,7 @@ trait RefreshCandidates
 
             $candidates->push($candidate);
 
-            $repository->add($candidate);
+            $this->dataSource->add($candidate);
         }
 
         return $numberOfCandidates === 1 ? $candidates->first() : $candidates;

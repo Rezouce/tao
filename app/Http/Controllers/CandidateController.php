@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Candidate;
-use App\Repository\CandidateRepositoryInterface;
+use App\Repository\CandidateRepository;
 
 class CandidateController extends Controller
 {
-    public function index(CandidateRepositoryInterface $repository)
+    public function index(CandidateRepository $repository)
     {
         if (request('name')) {
             $repository = $repository->filterByName(request('name'));
         }
 
-        return response($repository->paginate(request('offset', 0), request('limit', 10)), 200);
+        return response($repository->paginate(request('offset', 0), request('limit', 100)), 200);
     }
 
     public function show(Candidate $candidate)

@@ -1,14 +1,17 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Repository;
 
 use App\Candidate;
-use App\Repository\InMemoryCandidateRepository;
+use App\DataSource\DataSource;
+use App\DataSource\InMemoryDataSource;
+use App\Repository\CandidateRepository;
 use App\Repository\ModelNotFoundException;
+use Illuminate\Support\Collection;
 use Tests\RefreshCandidates;
 use Tests\TestCase;
 
-class InMemoryCandidateRepositoryTest extends TestCase
+class DataSourceCandidateRepositoryTest extends TestCase
 {
     use RefreshCandidates;
 
@@ -17,34 +20,9 @@ class InMemoryCandidateRepositoryTest extends TestCase
     {
         $candidates = $this->createCandidates(5);
 
-        $repository = new InMemoryCandidateRepository($candidates);
+        $repository = new CandidateRepository($this->createDataSource($candidates));
 
         $this->assertEquals($candidates, $repository->all());
-    }
-
-    /** @test */
-    public function it_can_add_candidates_to_the_repository()
-    {
-        $candidates = $this->createCandidates(5);
-
-        $repository = new InMemoryCandidateRepository();
-
-        foreach ($candidates as $candidate) {
-            $repository->add($candidate);
-        }
-
-        $this->assertSame($candidates->toArray(), $repository->all()->toArray());
-    }
-
-    /** @test */
-    public function it_will_fail_if_trying_to_add_something_else_than_a_candidate()
-    {
-        $repository = new InMemoryCandidateRepository();
-
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('Received a stdClass instead of a App\Candidate.');
-
-        $repository->add(new \stdClass());
     }
 
     /** @test */
@@ -52,7 +30,7 @@ class InMemoryCandidateRepositoryTest extends TestCase
     {
         $candidates = $this->createCandidates(9);
 
-        $repository = new InMemoryCandidateRepository($candidates);
+        $repository = new CandidateRepository($this->createDataSource($candidates));
 
         $results = $repository->paginate(6, 2);
 
@@ -67,10 +45,10 @@ class InMemoryCandidateRepositoryTest extends TestCase
     {
         $expectedCandidates = $this->createCandidates(2, ['firstname' => 'Ronald'])
             ->merge($this->createCandidates(2, ['lastname' => 'Ronald']));
+        $notExpectedCandidates = $this->createCandidates(10, ['firstname' => 'Something', 'lastname' => 'Else']);
 
-        $repository = new InMemoryCandidateRepository(
-            $this->createCandidates(10, ['firstname' => 'Something', 'lastname' => 'Else'])
-                ->merge($expectedCandidates)
+        $repository = new CandidateRepository(
+            $this->createDataSource($notExpectedCandidates->merge($expectedCandidates))
         );
 
         $this->assertSame($expectedCandidates->toArray(), $repository->filterByName('ronald')->all()->toArray());
@@ -82,7 +60,7 @@ class InMemoryCandidateRepositoryTest extends TestCase
         /** @var Candidate $candidate */
         $candidate = $this->createCandidates();
 
-        $repository = new InMemoryCandidateRepository(collect([$candidate]));
+        $repository = new CandidateRepository($this->createDataSource(collect([$candidate])));
 
         $this->assertSame($candidate, $repository->get($candidate->getId()));
     }
@@ -90,11 +68,16 @@ class InMemoryCandidateRepositoryTest extends TestCase
     /** @test */
     public function it_will_fail_when_trying_to_get__with_an_id__not_matching_any_candidate()
     {
-        $repository = new InMemoryCandidateRepository();
+        $repository = new CandidateRepository();
 
         $this->expectException(ModelNotFoundException::class);
         $this->expectExceptionMessage("There isn't any candidate with the id test.");
 
         $repository->get('test');
+    }
+
+    private function createDataSource(Collection $collection): DataSource
+    {
+        return new InMemoryDataSource($collection, Candidate::class);
     }
 }
